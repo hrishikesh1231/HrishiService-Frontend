@@ -81,7 +81,7 @@ export default function Admin() {
           </button>
 
           <div style={styles.hint}>
-            Demo admin password: <code>admin123</code> (replace in production)
+            Demo admin password: <code>*****</code> (replace in production)
           </div>
         </form>
       </div>
