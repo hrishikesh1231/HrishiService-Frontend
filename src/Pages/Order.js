@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./Order.css";
 
 // If you already use a backend, remove SAMPLE_SHOPS and fetch /api/shop/:id
@@ -51,6 +52,20 @@ async function compressImageFile(file, maxWidth = 1200, quality = 0.75) {
   return newFile;
 }
 
+// Phone normalization helper
+function normalizePhone(s) {
+  if (!s) return "";
+  let p = String(s).trim();
+  p = p.replace(/[()\s-]/g, "");
+  // remove leading zeros
+  p = p.replace(/^0+/, "");
+  // if missing + and looks like 10 digits, assume +91
+  if (!p.startsWith("+") && /^\d{10}$/.test(p)) p = "+91" + p;
+  // if starts with digits and length 11..14 add +
+  if (!p.startsWith("+") && /^\d{11,14}$/.test(p)) p = "+" + p;
+  return p;
+}
+
 const Order = () => {
   const q = useQuery();
   const navigate = useNavigate();
@@ -77,6 +92,9 @@ const Order = () => {
 
   // success modal control
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // upload progress 0-100
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const loadShop = async () => {
@@ -163,6 +181,8 @@ const Order = () => {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setUploadProgress(0);
+
     if (!shop) return setError("Invalid shop selected.");
     if (shop.id !== AVAILABLE_SHOP_ID) return setError("Ordering is not available for this shop.");
     if (!name.trim()) return setError("Please enter your name.");
@@ -170,25 +190,46 @@ const Order = () => {
     if (!address.trim()) return setError("Please enter delivery address.");
     if (items.length === 0 || items.some(it => !it.name.trim())) return setError("Please add at least one item with a name.");
 
+    // normalize phone
+    const normalizedPhone = normalizePhone(phone);
+    if (!/^\+\d{10,15}$/.test(normalizedPhone)) {
+      return setError("Please enter a valid phone number with country code (e.g. +91XXXXXXXXXX).");
+    }
+
     const formData = new FormData();
     formData.append("shopId", shop.id);
     formData.append("shopName", shop.name);
-    formData.append("customerName", name);
-    formData.append("customerPhone", phone);
-    formData.append("address", address);
+    formData.append("customerName", name.trim());
+    formData.append("customerPhone", normalizedPhone);
+    formData.append("address", address.trim());
     formData.append("note", note || "");
-    formData.append("items", JSON.stringify(items.map(it => ({ name: it.name, qty: Number(it.qty || 1) }))));
+    formData.append("items", JSON.stringify(items.map(it => ({ name: it.name.trim(), qty: Number(it.qty || 1) }))));
 
     if (prescription) formData.append("prescription", prescription);
 
     setSubmitting(true);
     try {
-      // Replace this with actual backend call
-      // const res = await fetch("/api/orders", { method: "POST", body: formData });
-      // ... handle response ...
-      const id = "ORD" + Date.now().toString().slice(-6);
-      await new Promise(r => setTimeout(r, 700));
-      setResult({ ok: true, orderId: id });
+      const res = await axios.post("http://localhost:5000/place-order", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percent);
+          }
+        },
+        timeout: 120000
+      });
+
+      if (!res || !res.data) {
+        throw new Error("No response from server");
+      }
+
+      const data = res.data;
+      if (data.error || !data.orderId) {
+        throw new Error(data.error || "Server returned invalid response");
+      }
+
+      setResult(data);
 
       // RESET ALL INPUTS AFTER SUCCESS
       setName("");
@@ -207,13 +248,15 @@ const Order = () => {
 
       // show success animation/modal
       setShowSuccess(true);
-      // auto-hide success modal after 3.2s
       setTimeout(() => setShowSuccess(false), 3200);
 
     } catch (err) {
-      setError(err.message || "Failed to place order.");
+      console.error("Submit error:", err);
+      const message = err?.response?.data?.error || err?.message || "Failed to place order.";
+      setError(message);
     } finally {
       setSubmitting(false);
+      setUploadProgress(0);
     }
   }
 
@@ -346,6 +389,16 @@ const Order = () => {
 
           {error && <div className="error">{error}</div>}
 
+          {/* Upload progress bar */}
+          {submitting && uploadProgress > 0 && (
+            <div className="progress-row">
+              <div className="progress-bar" aria-hidden style={{ width: "100%", background: "#eee", height: 10, borderRadius: 6 }}>
+                <div style={{ width: `${uploadProgress}%`, height: "100%", borderRadius: 6, background: "linear-gradient(90deg,#4caf50,#8bc34a)" }} />
+              </div>
+              <div className="progress-text">{uploadProgress}%</div>
+            </div>
+          )}
+
           <div className="submit-row">
             <button type="submit" disabled={submitting} className={`submit-btn ${submitting ? "btn-loading" : ""}`}>
               {submitting ? "Placing..." : `Place Order`}
@@ -360,7 +413,7 @@ const Order = () => {
             <li>Reply <code>CONFIRM &lt;ORDERID&gt;</code> or click confirm on the WhatsApp link to accept.</li>
             <li>Shop prepares your order, you pay COD or UPI as requested.</li>
           </ol>
-          <p className="small">Note: This demo simulates order submission. Connect to your backend <code>/api/orders</code> to make real orders. Backend should accept multipart/form-data with fields: shopId, customerName, customerPhone, address, note, items (JSON string) and optional file 'prescription'.</p>
+          <p className="small">Note: This demo submits to your backend <code>/place-order</code>. Backend should accept multipart/form-data with fields: shopId, customerName, customerPhone, address, note, items (JSON string) and optional file 'prescription'.</p>
         </aside>
       </section>
 
@@ -384,6 +437,9 @@ const Order = () => {
         <div className="order-result">
           <h3>Order Submitted</h3>
           <p>Order ID: <strong>{result.orderId}</strong></p>
+          {result.prescriptionFile && (
+            <p style={{ fontSize: 13 }}>Uploaded: <a href={result.prescriptionFile} target="_blank" rel="noreferrer">View prescription</a></p>
+          )}
           <p>We have sent a confirmation on WhatsApp (demo). The shop will contact you soon.</p>
           <div className="result-actions">
             <button onClick={() => { setResult(null); navigate("/"); }}>Back to shops</button>

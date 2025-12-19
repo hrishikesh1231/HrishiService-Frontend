@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from "react";
-// import ShopCard from "../components/ShopCard";
-// import "./../styles/Landing.css";
-import "./Landing.css"
+import "./Landing.css";
 import ShopCard from "./ShopCard";
 
 // sample shops data — replace with real API later
@@ -50,6 +48,16 @@ const Landing = ({ shops = SAMPLE_SHOPS, onOpenShop }) => {
 
   const categories = useMemo(() => ["All", ...new Set(shops.map((s) => s.category))], [shops]);
 
+  function isShopOpen(shopId) {
+    try {
+      const v = localStorage.getItem(`shop_open_${shopId}`);
+      if (v === null) return true; // default open
+      return v === "true";
+    } catch (err) {
+      return true;
+    }
+  }
+
   const filtered = shops.filter((s) => {
     const q = query.trim().toLowerCase();
     if (category !== "All" && s.category !== category) return false;
@@ -68,6 +76,7 @@ const Landing = ({ shops = SAMPLE_SHOPS, onOpenShop }) => {
           </div>
         </div>
 
+        {/* Controls Section (search, category filter + admin button) */}
         <div className="controls">
           <input
             aria-label="Search shops"
@@ -76,13 +85,27 @@ const Landing = ({ shops = SAMPLE_SHOPS, onOpenShop }) => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <select aria-label="Filter by category" className="category" value={category} onChange={(e) => setCategory(e.target.value)}>
+
+          <select
+            aria-label="Filter by category"
+            className="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
             {categories.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
           </select>
+
+          {/* ADMIN BUTTON */}
+          <button
+            className="admin-btn"
+            onClick={() => (window.location.href = "/admin")}
+          >
+            Admin
+          </button>
         </div>
       </header>
 
@@ -92,7 +115,16 @@ const Landing = ({ shops = SAMPLE_SHOPS, onOpenShop }) => {
         ) : (
           <div className="shops-grid" role="list">
             {filtered.map((shop) => (
-              <ShopCard key={shop.id} shop={shop} onClick={() => (onOpenShop ? onOpenShop(shop) : window.location.href = `/order?shop=${shop.id}`)} />
+              <ShopCard
+                key={shop.id}
+                shop={shop}
+                isOpen={isShopOpen(shop.id)}
+                onClick={() =>
+                  onOpenShop
+                    ? onOpenShop(shop)
+                    : (window.location.href = `/order?shop=${shop.id}`)
+                }
+              />
             ))}
           </div>
         )}

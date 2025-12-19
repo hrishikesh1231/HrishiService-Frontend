@@ -184,3 +184,25 @@ body{
   .brand-title{ font-size:18px; }
   .logo{ width:48px; height:48px; font-size:18px; }
 }
+.admin-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #d0d0d0;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s ease;
+  margin-left: 12px;
+}
+
+.admin-btn:hover {
+  background: #f4f4f4;
+}
+
+@media (max-width: 700px) {
+  .admin-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
