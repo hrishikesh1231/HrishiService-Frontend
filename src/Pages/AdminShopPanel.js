@@ -124,7 +124,7 @@ const [deleteTarget, setDeleteTarget] = useState(null);
   async function loadOrders() {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/orders");
+      const res = await fetch("https://hrishiservice-backend.onrender.com/api/orders");
       const json = await res.json();
       if (json && json.success && Array.isArray(json.orders)) {
         // ✅ DO NOT FORCE status to "pending"
@@ -168,7 +168,7 @@ const [deleteTarget, setDeleteTarget] = useState(null);
   async function saveOrderDetails(orderId, details) {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/orders/${orderId}/update`,
+        `https://hrishiservice-backend.onrender.com/api/orders/${orderId}/update`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -184,7 +184,7 @@ const [deleteTarget, setDeleteTarget] = useState(null);
 
   async function updateStatusServer(orderId, status) {
     try {
-      await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      await fetch(`https://hrishiservice-backend.onrender.com/api/orders/${orderId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -199,7 +199,7 @@ const [deleteTarget, setDeleteTarget] = useState(null);
 //   if (!ok) return;
 
 //   try {
-//     await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+//     await fetch(`https://hrishiservice-backend.onrender.com/api/orders/${orderId}`, {
 //       method: "DELETE",
 //     });
 
@@ -311,7 +311,7 @@ const [deleteTarget, setDeleteTarget] = useState(null);
   if (!deleteTarget) return;
 
   try {
-    await fetch(`http://localhost:5000/api/orders/${deleteTarget}`, {
+    await fetch(`https://hrishiservice-backend.onrender.com/api/orders/${deleteTarget}`, {
       method: "DELETE",
     });
 

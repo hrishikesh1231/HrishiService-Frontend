@@ -209,7 +209,7 @@ const Order = () => {
 
     setSubmitting(true);
     try {
-      const res = await axios.post("http://localhost:5000/place-order", formData, {
+      const res = await axios.post("https://hrishiservice-backend.onrender.com/place-order", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
