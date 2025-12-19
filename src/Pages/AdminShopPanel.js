@@ -606,7 +606,7 @@ const [deleteTarget, setDeleteTarget] = useState(null);
                             </button>
 
                             {/* SAVE only updates DB, no WhatsApp */}
-                            <button
+                            {/* <button
                               className="admin-btn-outline"
                               style={{ marginLeft: 8 }}
                               onClick={async () => {
@@ -641,7 +641,7 @@ const [deleteTarget, setDeleteTarget] = useState(null);
                               }}
                             >
                               Save
-                            </button>
+                            </button> */}
                           </div>
                         </div>
                       </div>
