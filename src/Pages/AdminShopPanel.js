@@ -441,6 +441,32 @@ const [deleteTarget, setDeleteTarget] = useState(null);
 
                   {expanded[o._id] && (
                     <div className="admin-order-expanded">
+                            {/* ===== Customer Details ===== */}
+                            <div className="customer-info">
+                              <div className="info-row">
+                                <span className="info-label">📍 Address:</span>
+                                <span className="info-value">
+                                  {o.address || o.customerAddress || "—"}
+                                </span>
+                              </div>
+
+                              <div className="info-row">
+                                <span className="info-label">📱 WhatsApp:</span>
+                                {o.customerPhone ? (
+                                  <a
+                                    href={`https://wa.me/${String(o.customerPhone).replace(/^\+/, "")}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="whatsapp-link"
+                                  >
+                                    {o.customerPhone}
+                                  </a>
+                                ) : (
+                                  <span className="info-value">—</span>
+                                )}
+                              </div>
+                            </div>
+
                       <div className="items-title">Items</div>
 
                       <div className="items-table">

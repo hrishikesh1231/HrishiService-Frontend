@@ -459,3 +459,48 @@
     opacity: 1;
   }
 }
+/* ===== CUSTOMER INFO ===== */
+.customer-info {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #334155;
+}
+
+.info-value {
+  color: #475569;
+}
+
+.whatsapp-link {
+  color: #16a34a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.whatsapp-link:hover {
+  text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .info-row {
+    flex-direction: column;
+  }
+}
+
