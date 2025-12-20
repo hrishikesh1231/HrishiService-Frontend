@@ -165,22 +165,22 @@ const [deleteTarget, setDeleteTarget] = useState(null);
     }, 0);
   }
 
-  async function saveOrderDetails(orderId, details) {
-    try {
-      const res = await fetch(
-        `https://hrishiservice-backend.onrender.com/api/orders/${orderId}/update`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(details),
-        }
-      );
-      return await res.json().catch(() => null);
-    } catch (err) {
-      console.warn("saveOrderDetails failed:", err);
-      return null;
-    }
-  }
+  // async function saveOrderDetails(orderId, details) {
+  //   try {
+  //     const res = await fetch(
+  //       `https://hrishiservice-backend.onrender.com/api/orders/${orderId}/update`,
+  //       {
+  //         method: "PUT",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify(details),
+  //       }
+  //     );
+  //     return await res.json().catch(() => null);
+  //   } catch (err) {
+  //     console.warn("saveOrderDetails failed:", err);
+  //     return null;
+  //   }
+  // }
 
   async function updateStatusServer(orderId, status) {
     try {
@@ -466,6 +466,31 @@ const [deleteTarget, setDeleteTarget] = useState(null);
                                 )}
                               </div>
                             </div>
+                            {console.log(o)}
+
+                                {/* ===== Uploaded Photo / Prescription ===== */}
+                                  {(o.prescriptionFile || o.image || o.photo) && (
+                                    <div className="order-image-box">
+                                      <div className="image-title">📷 Uploaded Photo</div>
+
+                                      <img
+                                        src={o.prescriptionFile || o.image || o.photo}
+                                        alt="Uploaded"
+                                        className="order-image"
+                                        onClick={() =>
+                                          window.open(
+                                            o.prescriptionFile || o.image || o.photo,
+                                            "_blank"
+                                          )
+                                        }
+                                      />
+
+                                      <div className="image-hint">
+                                        Click image to view full size
+                                      </div>
+                                    </div>
+                                  )}
+
 
                       <div className="items-title">Items</div>
 
