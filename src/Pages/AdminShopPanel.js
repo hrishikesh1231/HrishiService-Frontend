@@ -14,7 +14,7 @@ async function enableNotifications() {
   }
 
   const token = await getToken(messaging, {
-    vapidKey: "PASTE_YOUR_VAPID_KEY_HERE"
+    vapidKey: "BICVMfL20bzHbPAjtv-pdd5XH1cd8yBHdOgwe2GJUypL4sueU_XJ-vnQKIYCWZ72xO8h4FY1dJW7we-HX_zs"
   });
 
   console.log("ADMIN PUSH TOKEN:", token);
