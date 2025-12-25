@@ -2,7 +2,31 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminShopPanel.css";
+import { getToken } from "firebase/messaging";
+import { messaging } from "../firebase";
 
+
+async function enableNotifications() {
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") {
+    alert("Permission denied");
+    return;
+  }
+
+  const token = await getToken(messaging, {
+    vapidKey: "PASTE_YOUR_VAPID_KEY_HERE"
+  });
+
+  console.log("ADMIN PUSH TOKEN:", token);
+
+  await fetch("https://hrishiservice-backend.onrender.com/api/save-admin-push-token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token })
+  });
+
+  alert("🔔 Notifications enabled");
+}
 /* helpers */
 function normalizeName(raw) {
   if (raw == null) return "";
@@ -348,6 +372,10 @@ const [deleteTarget, setDeleteTarget] = useState(null);
           <p className="admin-address">
             All orders (exact item name & qty shown)
           </p>
+          <button onClick={enableNotifications}>
+            Enable Order Notifications
+          </button>
+
         </div>
 
         <button
