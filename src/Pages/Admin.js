@@ -81,7 +81,7 @@ export default function Admin() {
           </button>
 
           <div style={styles.hint}>
-           This is for Admin only : <code>*****</code> (replace in production)
+           This is for Admin only : <code>admin123</code> (replace in production)
           </div>
         </form>
       </div>
